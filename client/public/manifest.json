@@ -1,0 +1,10 @@
+{
+  "name": "LPG SmartTrack",
+  "short_name": "SmartTrack",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#071A33",
+  "theme_color": "#071A33",
+  "description": "Live LPG delivery tracking and customer verification.",
+  "icons": [{"src":"/manus-storage/lpg-smarttrack-logo_f276663c.png","sizes":"512x512","type":"image/png"}]
+}

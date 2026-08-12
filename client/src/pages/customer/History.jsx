@@ -1,0 +1,7 @@
+import { Check, ChevronRight, Download, ShieldCheck } from 'lucide-react';
+import StatusBadge from '../../components/common/StatusBadge';
+import { history } from '../../services/mockData';
+
+export default function History() {
+  return <div className="standard-page"><div className="page-intro"><div><span className="section-kicker">A record you can trust</span><h2>Delivery <em>history.</em></h2><p>Every cylinder, every handoff, clearly accounted for.</p></div><button className="button button-ghost button-small"><Download size={15} /> Export history</button></div><div className="history-table-wrap"><table className="history-table"><thead><tr><th>Booking ID</th><th>Date</th><th>Status</th><th>Delivery time</th><th>Verification</th><th /></tr></thead><tbody>{history.map((item) => <tr key={item.id}><td><strong>{item.id}</strong></td><td>{item.date}</td><td><StatusBadge tone="success"><Check size={12} /> {item.status}</StatusBadge></td><td>{item.time}</td><td><span className="verified-label"><ShieldCheck size={15} /> {item.verification}</span></td><td><button className="row-action" aria-label={'View ' + item.id}><ChevronRight size={16} /></button></td></tr>)}</tbody></table></div><div className="mobile-history-list">{history.map((item) => <article key={item.id} className="mobile-history-card"><div><span className="eyebrow">{item.date}</span><strong>{item.id}</strong></div><StatusBadge tone="success"><Check size={12} /> Verified</StatusBadge><div><span>Delivery time</span><strong>{item.time}</strong></div><ChevronRight size={16} /></article>)}</div></div>;
+}

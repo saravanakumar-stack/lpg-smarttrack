@@ -1,0 +1,26 @@
+// Warm Terracotta app shell: customer, agent, and admin identities share live notification state with role-specific operational navigation.
+import React from 'react';
+import { Bell, BookOpen, ClipboardList, History, Home, LogOut, Map, Menu, Package, Settings2, ShieldCheck, UserRound, Users, X } from 'lucide-react';
+import { Link, useLocation } from 'wouter';
+import BrandLogo from '../brand/BrandLogo';
+import { useAuth } from '../../contexts/AuthContext';
+import { useDelivery } from '../../contexts/DeliveryContext';
+
+const customerNav = [['/customer/dashboard', 'Overview', Home], ['/customer/booking', 'Book cylinder', Package], ['/customer/track', 'Track delivery', Map], ['/customer/notifications', 'Notifications', Bell], ['/customer/history', 'Delivery history', History], ['/customer/profile', 'Profile', UserRound]];
+const agentNav = [['/agent/dashboard', 'Command center', Home], ['/agent/deliveries', 'Today’s deliveries', ClipboardList], ['/agent/active', 'Active delivery', Map], ['/agent/notifications', 'Notifications', Bell], ['/agent/history', 'Delivery history', History], ['/agent/profile', 'Agent profile', UserRound]];
+const adminNav = [['/admin/dashboard', 'Overview', Home], ['/admin/users', 'Users', Users], ['/admin/deliveries', 'Deliveries', Map], ['/admin/security', 'Security ops', ShieldCheck]];
+
+export default function AppShell({ role = 'customer', children }) {
+  const [location] = useLocation();
+  const [open, setOpen] = React.useState(false);
+  const { logout, profile } = useAuth();
+  const { unreadCount } = useDelivery();
+  const nav = role === 'admin' ? adminNav : role === 'agent' ? agentNav : customerNav;
+  const current = nav.find(([path]) => location === path);
+  const title = current?.[1] || (role === 'admin' ? 'Overview' : role === 'agent' ? 'Command center' : 'Overview');
+  const initials = profile.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  const roleLabel = role === 'admin' ? 'Security operations' : role === 'agent' ? 'Delivery partner' : 'Customer account';
+  const notificationsPath = role === 'admin' ? '/admin/security' : role === 'agent' ? '/agent/notifications' : '/customer/notifications';
+  function signOut() { logout(); window.location.href = '/'; }
+  return <div className="app-shell"><aside className={'app-sidebar ' + (open ? 'is-open' : '')}><div className="sidebar-top"><Link href={role === 'admin' ? '/admin/dashboard' : role === 'agent' ? '/agent/dashboard' : '/customer/dashboard'} onClick={() => setOpen(false)}><BrandLogo /></Link><button className="sidebar-close" onClick={() => setOpen(false)} aria-label="Close navigation"><X size={18} /></button></div><Link href={role === 'admin' ? '/admin/security' : role === 'agent' ? '/agent/profile' : '/customer/profile'} className="role-switch"><span className={'role-avatar ' + (role === 'admin' ? 'admin-avatar' : '')}>{initials}</span><span><strong>{profile.name}</strong><small>{roleLabel}</small></span><Settings2 size={16} /></Link><nav className="sidebar-nav"><span className="nav-eyebrow">{role === 'admin' ? 'Security operations' : role === 'agent' ? 'Operations' : 'Your delivery'}</span>{nav.map(([path, label, Icon]) => <Link key={path} href={path} onClick={() => setOpen(false)} className={'sidebar-link ' + (location === path ? 'is-active' : '')}><Icon size={18} /><span>{label}</span>{label === 'Security ops' && <i className="nav-unread admin-nav-dot" />}{label === 'Notifications' && unreadCount > 0 && <i className="nav-unread" />}</Link>)}</nav><div className="sidebar-footer"><div className="sidebar-demo"><span className="live-dot warm-dot" /><div><strong>{role === 'admin' ? 'Security monitor live' : 'Live sync active'}</strong><small>{role === 'admin' ? 'Protected admin session' : unreadCount ? `${unreadCount} unread update${unreadCount === 1 ? '' : 's'}` : 'All updates read'}</small></div></div><button type="button" className="sidebar-logout" onClick={signOut}><LogOut size={15} /> Sign out</button><Link href="/" className="back-home"><BookOpen size={15} /> Product overview</Link></div></aside><div className="app-main"><header className="app-header"><button className="mobile-menu" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={21} /></button><div><span className="header-kicker">{role === 'admin' ? 'SmartTrack security operations' : role === 'agent' ? 'SmartTrack operations' : `Good afternoon, ${profile.name.split(' ')[0]}`}</span><h1>{title}</h1></div><div className="header-actions"><Link href={notificationsPath} className="header-icon-button" aria-label={role === 'admin' ? 'Open security operations' : 'Open notifications'}><Bell size={18} />{unreadCount > 0 && <i />}</Link><Link href={role === 'admin' ? '/admin/security' : role === 'agent' ? '/agent/profile' : '/customer/profile'} className={'header-avatar ' + (role === 'admin' ? 'admin-avatar' : '')}>{initials}</Link></div></header><main className="page-content">{children}</main><nav className="bottom-nav">{nav.slice(0, 5).map(([path, label, Icon]) => <Link key={path} href={path} className={location === path ? 'is-active' : ''}><Icon size={19} /><span>{label.split(' ')[0]}</span>{label === 'Notifications' && unreadCount > 0 && <i className="nav-unread" />}</Link>)}</nav></div></div>;
+}
