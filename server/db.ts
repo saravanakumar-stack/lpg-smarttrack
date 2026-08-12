@@ -92,6 +92,10 @@ loadEnv();
  * Gracefully logs status and warnings without halting server if MONGODB_URI is unconfigured.
  */
 export async function connectDB(): Promise<typeof mongoose | null> {
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose;
+  }
+
   loadEnv();
 
   const rawUri = process.env.MONGODB_URI;
